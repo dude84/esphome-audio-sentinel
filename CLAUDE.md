@@ -10,15 +10,15 @@ Two ESPHome idioms carry this project — know both before editing:
 
 1. **Packages** (https://esphome.io/components/packages/) — `audio-sentinel.yaml`
    is a thin entrypoint (substitutions + `external_components` + `packages:`).
-   Real config is split across `packages/*.yaml`, merged non-destructively
+   Real config is split across `audio-sentinel/packages/*.yaml`, merged non-destructively
    (lists concat / merge by id; main-config substitutions win).
-2. **External component** `components/audio_sentinel/` — all signal processing.
+2. **External component** `audio-sentinel/components/audio_sentinel/` — all signal processing.
    This replaced the removed `includes:`/custom-component style. **Do not
    reintroduce `includes:` or inline DSP lambdas.**
 
 Data flow: `INMP441 → i2s_audio → sound_level (spl_db, spl_peak_db) → audio_sentinel → HA`.
 
-## Component internals (`components/audio_sentinel/`)
+## Component internals (`audio-sentinel/components/audio_sentinel/`)
 
 - `__init__.py` — hub `CONFIG_SCHEMA` + `to_code`. Wires source sensors
   (`rms_sensor`/`peak_sensor`), `web_server_base`, threshold `number`s, and tuning
@@ -37,7 +37,7 @@ Data flow: `INMP441 → i2s_audio → sound_level (spl_db, spl_peak_db) → audi
   - All former lambda function-`static`s are now instance members (`env_`, `floor_db_`,
     `ev_s_`, `ev_t_peak_`, latches, …).
 
-### Tuning knobs (`audio_sentinel:` in `packages/sentinel.yaml`)
+### Tuning knobs (`audio_sentinel:` in `audio-sentinel/packages/sentinel.yaml`)
 `initial_floor_db`, `floor_drift_db`, `floor_alpha`, `margin_db` (noise floor) ·
 `release_coeff` (live envelope) · `hold`/`glide`/`attack_db` (events peak-hold) ·
 `hysteresis_db` (squawk/cry) · `live_interval`/`events_interval` (cadence).

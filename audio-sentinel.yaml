@@ -44,14 +44,16 @@ esp32:
 logger:
   level: INFO
 
-# Local external component (replaces the removed includes:/custom-component style)
+# Local external component (replaces the removed includes:/custom-component style).
+# Paths are namespaced under audio-sentinel/ so this drops into a shared ESPHome
+# config dir (e.g. /config/esphome/) without clashing with other devices.
 external_components:
   - source:
       type: local
-      path: components
+      path: audio-sentinel/components
 
 packages:
-  network: !include packages/network.yaml
-  mic: !include packages/mic.yaml
-  sentinel: !include packages/sentinel.yaml
-  diagnostics: !include packages/diagnostics.yaml
+  network: !include audio-sentinel/packages/network.yaml
+  mic: !include audio-sentinel/packages/mic.yaml
+  sentinel: !include audio-sentinel/packages/sentinel.yaml
+  diagnostics: !include audio-sentinel/packages/diagnostics.yaml

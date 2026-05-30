@@ -55,19 +55,25 @@ The Home Assistant view (ApexCharts) shows a **short window** (live, 5 min) and 
 
 ```
 audio-sentinel.yaml          # thin entrypoint: substitutions + external_components + packages
-packages/
-  network.yaml               # wifi, api, ota, captive_portal, web_server
-  mic.yaml                   # i2s_audio, microphone, sound_level (spl_db / spl_peak_db)
-  sentinel.yaml              # audio_sentinel hub + its sensors/binary_sensors + thresholds + audio switch
-  diagnostics.yaml           # heap (debug), uptime, status LED
-components/
-  audio_sentinel/            # the external component (Python codegen + C++ DSP)
-    __init__.py  sensor.py  binary_sensor.py  audio_sentinel.h  audio_sentinel.cpp
+audio-sentinel/              # everything the firmware includes — namespaced so it can
+  packages/                  #   drop into a shared ESPHome dir without clashing
+    network.yaml             # wifi, api, ota, captive_portal, web_server
+    mic.yaml                 # i2s_audio, microphone, sound_level (spl_db / spl_peak_db)
+    sentinel.yaml            # audio_sentinel hub + its sensors/binary_sensors + thresholds + audio switch
+    diagnostics.yaml         # heap (debug), uptime, status LED
+  components/
+    audio_sentinel/          # the external component (Python codegen + C++ DSP)
+      __init__.py  sensor.py  binary_sensor.py  audio_sentinel.h  audio_sentinel.cpp
 ha/
   dashboard.yaml             # ApexCharts card (short + long window)
   rest_command.yaml          # HA rest_command that calls /api/audio_buffer
 secrets.yaml.example         # template — copy to secrets.yaml (git-ignored)
 ```
+
+The `audio-sentinel/` subfolder is named after the device so the firmware drops
+straight into a multi-device ESPHome config dir (e.g. `/config/esphome/`) with no
+collisions — `audio-sentinel.yaml` stays at the top level (where the add-on
+dashboard lists it) and includes everything from its own namespaced subfolder.
 
 The firmware uses the ESPHome [packages](https://esphome.io/components/packages/)
 pattern (the top file just `!include`s the packages) and a local
@@ -86,27 +92,29 @@ into Home Assistant by hand.
 ### A. Firmware (ESPHome)
 
 ESPHome resolves `packages:` and `external_components: source: local` **relative to
-`audio-sentinel.yaml`**, so the folder layout must be kept intact. Put the repo into
-your ESPHome config dir — `/config/esphome/` if you use the **ESPHome add-on** inside
-Home Assistant, or any folder if you use the standalone CLI:
+`audio-sentinel.yaml`**, and the include paths are already namespaced under the
+`audio-sentinel/` subfolder — so you can drop this straight into a shared config dir
+(`/config/esphome/` for the **ESPHome add-on**, or any folder for the standalone CLI)
+**alongside your other devices** without anything clashing:
 
 ```
-/config/esphome/                 # ESPHome add-on config dir (or any dir, standalone)
-├── audio-sentinel.yaml          # ← the file you compile/flash
-├── secrets.yaml                 # ← you create this (see below); NOT committed
-├── packages/
-│   ├── network.yaml  mic.yaml  sentinel.yaml  diagnostics.yaml
-└── components/
-    └── audio_sentinel/          # __init__.py sensor.py binary_sensor.py *.h *.cpp
+/config/esphome/                 # shared ESPHome dir — other devices live here too
+├── audio-sentinel.yaml          # ← the file you compile/flash (stays top-level)
+├── secrets.yaml                 # ← you create this; shared by all your devices
+├── kitchen-sensor.yaml          # (your other devices — untouched)
+└── audio-sentinel/              # this project's namespaced includes
+    ├── packages/   network.yaml mic.yaml sentinel.yaml diagnostics.yaml
+    └── components/audio_sentinel/   # __init__.py sensor.py binary_sensor.py *.h *.cpp
 ```
 
 Steps:
 
-1. Copy `audio-sentinel.yaml`, `packages/`, and `components/` into that dir
-   (keep the tree exactly). The `ha/` folder and `*.example` are not needed here.
+1. Copy `audio-sentinel.yaml` **and** the `audio-sentinel/` folder into that dir
+   (keep the tree exactly — the top-level yaml plus its same-named subfolder). The
+   `ha/` folder and `*.example` are not needed here.
 2. Create `secrets.yaml` next to `audio-sentinel.yaml`
    (`cp secrets.yaml.example secrets.yaml`, then fill in Wi-Fi / API / OTA).
-   The ESPHome add-on uses `/config/esphome/secrets.yaml`.
+   The ESPHome add-on uses `/config/esphome/secrets.yaml` for every device.
 3. Edit `substitutions:` in `audio-sentinel.yaml` — pins and `static_ip`.
 4. Build + flash:
    - **Add-on:** open the device in the ESPHome dashboard → **Install** (USB first
