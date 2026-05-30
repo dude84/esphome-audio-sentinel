@@ -122,6 +122,52 @@ Entities published (slugs assume the default `name: audio-sentinel`):
 
 ---
 
+## On-device buffer API — instant chart back-fill
+
+The device runs a small HTTP server (the ESPHome web server) that exposes the
+**whole recent history in one request**, so the Home Assistant chart paints a full
+window the instant it loads instead of starting blank and filling in live, one
+sample every 250 ms (which would otherwise take ~5 minutes to look complete).
+
+The `audio_sentinel` component keeps a **ring buffer of the last 1200 samples**
+(peak dB + noise floor, one pair every 250 ms = 5 minutes) and serves it as JSON:
+
+```
+GET http://<device-ip>/api/audio_buffer?count=N
+```
+
+- `count` — how many of the most recent samples to return (default 480 ≈ 2 min,
+  clamped to 1200 ≈ 5 min). Older slots are zero-padded if fewer exist.
+- `Access-Control-Allow-Origin: *` is set so the dashboard's JS can fetch it.
+
+When the ApexCharts card loads, its `data_generator` calls this endpoint once (via
+`rest_command.baby_sentinel_audio_buffer_fetch`) and seeds both the **Peak** and
+**Noise Floor** series with the returned history; from then on it appends live
+values. That's the only reason the short-window chart is full immediately.
+
+### Sample payload
+
+Real capture from the device, quiet room (`count=8` for brevity):
+
+```bash
+curl "http://10.0.30.86/api/audio_buffer?count=8"
+```
+```json
+{"count":8,"ms":250,"p":[-65.0,-65.0,-65.0,-65.0,-65.0,-65.0,-65.0,-65.0],"n":[-64.8,-64.8,-64.8,-64.8,-64.8,-64.8,-64.8,-64.8]}
+```
+
+| Field   | Meaning |
+|---------|---------|
+| `count` | number of samples in this response |
+| `ms`    | spacing between samples (250 ms) — the client derives each timestamp as `now - (count - i) * ms`, so no per-sample timestamps are sent |
+| `p[]`   | gated peak dB per sample (the live trace) |
+| `n[]`   | adaptive noise floor per sample |
+
+A full `count=1200` response is ~10 KB. The arrays are parallel and equal length;
+`p[i]` and `n[i]` share the timestamp for index `i`.
+
+---
+
 ## Tuning
 
 Set thresholds live from HA (the `number.*` entities) while watching the live
