@@ -76,37 +76,70 @@ pattern (the top file just `!include`s the packages) and a local
 
 ---
 
-## Flashing
+## Installation — which file goes where
 
-1. Install ESPHome (`pip install esphome` or the HA add-on).
-2. `cp secrets.yaml.example secrets.yaml` and fill in your values.
-3. Adjust `substitutions:` in `audio-sentinel.yaml` (pins, `static_ip`).
-4. Validate, then flash:
+There are **two independent halves**: the **firmware** (built/flashed by ESPHome)
+and the **Home Assistant config** (the chart card + REST command). The `ha/` folder
+in this repo is **reference only** — ESPHome never reads it; you copy its contents
+into Home Assistant by hand.
 
-   ```bash
-   esphome config  audio-sentinel.yaml     # validate config + package merge
-   esphome compile audio-sentinel.yaml     # compile (builds the external component)
-   esphome run     audio-sentinel.yaml     # flash (USB first time, OTA after)
-   ```
+### A. Firmware (ESPHome)
 
-Verify the endpoint after boot:
+ESPHome resolves `packages:` and `external_components: source: local` **relative to
+`audio-sentinel.yaml`**, so the folder layout must be kept intact. Put the repo into
+your ESPHome config dir — `/config/esphome/` if you use the **ESPHome add-on** inside
+Home Assistant, or any folder if you use the standalone CLI:
 
-```bash
-curl "http://<device-ip>/api/audio_buffer?count=1200"
-# -> {"count":1200,"ms":250,"p":[...],"n":[...]}
+```
+/config/esphome/                 # ESPHome add-on config dir (or any dir, standalone)
+├── audio-sentinel.yaml          # ← the file you compile/flash
+├── secrets.yaml                 # ← you create this (see below); NOT committed
+├── packages/
+│   ├── network.yaml  mic.yaml  sentinel.yaml  diagnostics.yaml
+└── components/
+    └── audio_sentinel/          # __init__.py sensor.py binary_sensor.py *.h *.cpp
 ```
 
----
+Steps:
 
-## Home Assistant setup
+1. Copy `audio-sentinel.yaml`, `packages/`, and `components/` into that dir
+   (keep the tree exactly). The `ha/` folder and `*.example` are not needed here.
+2. Create `secrets.yaml` next to `audio-sentinel.yaml`
+   (`cp secrets.yaml.example secrets.yaml`, then fill in Wi-Fi / API / OTA).
+   The ESPHome add-on uses `/config/esphome/secrets.yaml`.
+3. Edit `substitutions:` in `audio-sentinel.yaml` — pins and `static_ip`.
+4. Build + flash:
+   - **Add-on:** open the device in the ESPHome dashboard → **Install** (USB first
+     time, then wireless/OTA).
+   - **CLI:**
+     ```bash
+     esphome config  audio-sentinel.yaml   # validate config + package merge
+     esphome compile audio-sentinel.yaml   # compile (builds the external component)
+     esphome run     audio-sentinel.yaml   # flash (USB first time, OTA after)
+     ```
+5. After it boots, the device auto-discovers in HA (**Settings → Devices & Services
+   → ESPHome**); confirm it and the entities below appear. Sanity-check the buffer:
+   ```bash
+   curl "http://<device-ip>/api/audio_buffer?count=1200"
+   # -> {"count":1200,"ms":250,"p":[...],"n":[...]}
+   ```
 
-1. Install the [ApexCharts card](https://github.com/RomRider/apexcharts-card)
-   (and [card-mod](https://github.com/thomasloven/lovelace-card-mod) for the
-   spinner-hiding style) via HACS.
-2. Add the `rest_command` from `ha/rest_command.yaml` to `configuration.yaml`
-   (set the host to your device IP), and restart HA. The card's `data_generator`
-   calls `rest_command.baby_sentinel_audio_buffer_fetch` to pre-fill history.
-3. Add `ha/dashboard.yaml` as a manual/dashboard card.
+### B. Home Assistant (chart + REST command)
+
+1. **HACS cards:** install [ApexCharts card](https://github.com/RomRider/apexcharts-card)
+   and [card-mod](https://github.com/thomasloven/lovelace-card-mod) (for the
+   spinner-hiding style), then reload the browser.
+2. **REST command:** copy the `rest_command:` block from `ha/rest_command.yaml` into
+   your **`/config/configuration.yaml`** (set the host to your device IP). If you
+   already have a `rest_command:` key, merge the entry under it. **Restart HA.**
+   This is what the chart calls to back-fill history (see *On-device buffer API*).
+3. **Chart card:** in a dashboard choose **Edit → Add card → Manual**, paste the
+   contents of `ha/dashboard.yaml`, and save. (Or add it under `cards:` in a
+   YAML-mode dashboard.)
+
+> Entity slugs in `ha/dashboard.yaml` assume the default `name: audio-sentinel`.
+> If you changed `name:`, update the `entity:` lines (and the URL in
+> `ha/rest_command.yaml`) to match.
 
 Entities published (slugs assume the default `name: audio-sentinel`):
 
