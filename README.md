@@ -214,5 +214,15 @@ A full `count=1200` response is ~10 KB. The arrays are parallel and equal length
 Set thresholds live from HA (the `number.*` entities) while watching the live
 chart: raise **Squawk** until normal sleep noises stay below it; set **Cry** near
 the level of a real cry. DSP behavior (floor drift, hold/glide, margins) is tunable
-via the `audio_sentinel:` keys in `packages/sentinel.yaml` — see `CLAUDE.md` for
-the full knob list and what each does.
+via the `audio_sentinel:` keys in `audio-sentinel/packages/sentinel.yaml` — see
+`CLAUDE.md` for the full knob list and what each does.
+
+---
+
+## License
+
+[MIT](LICENSE) © 2026 Maciej Rohleder.
+
+Not affiliated with or endorsed by ESPHome or Home Assistant. This is a sound-level
+monitor, **not** a medical or safety device — do not rely on it as the sole means of
+monitoring an infant or patient.
