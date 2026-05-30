@@ -1,0 +1,14 @@
+# Home Assistant REST command — add to configuration.yaml.
+#
+# The ApexCharts card's data_generator (see ha/dashboard.yaml) calls this on
+# load to pre-fill the live window from the device ring buffer served at
+# GET /api/audio_buffer?count=N (provided by the audio_sentinel component).
+#
+# return_response: true requires Home Assistant 2024.7+.
+# Adjust the host to match ${static_ip} in audio-sentinel.yaml.
+
+rest_command:
+  baby_sentinel_audio_buffer_fetch:
+    url: "http://10.0.30.86/api/audio_buffer?count={{ count | default(480) }}"
+    method: GET
+    timeout: 10

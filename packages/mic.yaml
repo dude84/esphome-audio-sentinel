@@ -1,0 +1,32 @@
+# INMP441 I²S microphone + official sound_level sensor (RMS + peak).
+# These feed the audio_sentinel component (spl_db / spl_peak_db).
+
+i2s_audio:
+  id: i2s_bus
+  i2s_lrclk_pin: ${i2s_lrclk}
+  i2s_bclk_pin: ${i2s_bclk}
+
+microphone:
+  - platform: i2s_audio
+    id: mic
+    adc_type: external
+    i2s_audio_id: i2s_bus
+    i2s_din_pin: ${i2s_din}
+    sample_rate: ${sample_rate}
+    bits_per_sample: 32bit
+    use_apll: true
+    channel: right
+
+sensor:
+  - platform: sound_level
+    microphone: mic
+    passive: false
+    measurement_duration: ${meas_duration_ms}ms
+    rms:
+      id: spl_db
+      name: "${name} dB"
+      accuracy_decimals: 1
+    peak:
+      id: spl_peak_db
+      name: "${name} Peak dB"
+      accuracy_decimals: 1

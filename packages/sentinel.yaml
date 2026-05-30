@@ -1,0 +1,113 @@
+# Audio Sentinel DSP hub + the entities it publishes.
+# All signal processing is in the audio_sentinel external component; this file
+# only declares the entities and tuning. Entity names are kept identical to the
+# pre-refactor firmware so the Home Assistant dashboard keeps working.
+
+# ── User-adjustable thresholds ──────────────────────────────────
+number:
+  - platform: template
+    id: squawk_threshold
+    name: "${name} Squawk Threshold (dB)"
+    min_value: -90
+    max_value: 0
+    step: 0.5
+    initial_value: -55
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    id: cry_threshold
+    name: "${name} Cry Threshold (dB)"
+    min_value: -90
+    max_value: 0
+    step: 0.5
+    initial_value: -32
+    optimistic: true
+    restore_value: true
+
+  # Offset applied to RMS for the estimated-SPL sensor (not used for peak)
+  - platform: template
+    id: spl_offset_db
+    name: "${name} SPL Offset (RMS, dB)"
+    min_value: -50
+    max_value: 150
+    step: 0.5
+    initial_value: 110
+    optimistic: true
+    restore_value: true
+
+# ── DSP hub ─────────────────────────────────────────────────────
+audio_sentinel:
+  id: sentinel
+  web_server_base_id: web_base
+  rms_sensor: spl_db
+  peak_sensor: spl_peak_db
+  squawk_number: squawk_threshold
+  cry_number: cry_threshold
+  offset_number: spl_offset_db
+  live_interval: ${live_interval_ms}ms
+  events_interval: 2s
+  initial_floor_db: ${initial_floor_db}
+  floor_drift_db: ${floor_drift_db}
+  hysteresis_db: ${hysteresis_db}
+  margin_db: 2.0
+  hold: 20s
+  glide: 0.10
+  attack_db: 0.5
+
+# ── Sensors published by the hub ────────────────────────────────
+sensor:
+  - platform: audio_sentinel
+    audio_sentinel_id: sentinel
+    db_live:
+      name: "${name} dB (live)"
+      filters:
+        - throttle: ${live_interval_ms}ms
+        - delta: 0.5
+    peak_live:
+      name: "${name} Peak dB (live)"
+      filters:
+        - median:
+            window_size: 3
+            send_every: 1
+    noise_floor:
+      name: "${name} Noise Floor"
+      filters:
+        - delta: 0.1
+    peak_events:
+      name: "${name} Peak dB (events)"
+      state_class: measurement      # enables HA long-term statistics
+      filters:
+        - median:
+            window_size: 3
+            send_every: 1
+        - delta: 2.0                 # publish only on >=2 dB move (fewer recorded rows)
+    squawk_threshold:
+      name: "${name} Squawk Threshold"
+    cry_threshold:
+      name: "${name} Cry Threshold"
+    est_db:
+      name: "${name} est. dB (approx RMS)"
+      accuracy_decimals: 0
+      icon: mdi:decibel
+
+# ── Binary sensors (hysteresis on peak) ─────────────────────────
+binary_sensor:
+  - platform: audio_sentinel
+    audio_sentinel_id: sentinel
+    squawk:
+      name: "${name} Squawk"
+    cry:
+      name: "${name} Cry"
+
+# ── Manual audio toggle (HA switch) ─────────────────────────────
+switch:
+  - platform: template
+    id: audio_switch
+    name: "${name} Audio"
+    icon: mdi:microphone
+    lambda: "return id(sentinel).is_audio_enabled();"
+    turn_on_action:
+      - lambda: "id(sentinel).set_audio_enabled(true);"
+    turn_off_action:
+      - lambda: "id(sentinel).set_audio_enabled(false);"

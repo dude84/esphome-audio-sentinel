@@ -1,0 +1,48 @@
+# Diagnostics + status LED. Heap uses the official debug component instead of
+# raw esp_get_free_heap_size() lambdas. The human-readable uptime string is a
+# plain template lambda — that is a normal automation lambda (still supported),
+# not the removed includes:/custom-component style.
+
+debug:
+  update_interval: 10s
+
+sensor:
+  - platform: debug
+    free:
+      name: "S3 Free Heap"
+      unit_of_measurement: "bytes"
+    block:
+      name: "S3 Largest Free Block"
+      unit_of_measurement: "bytes"
+
+  - platform: uptime
+    id: uptime_s
+    name: "Time Since Last Boot [Seconds]"
+    update_interval: 60s
+
+text_sensor:
+  - platform: template
+    name: "Time Since Last Boot"
+    update_interval: 60s
+    lambda: |-
+      int sec = (int) id(uptime_s).state;
+      int days = sec / 86400;
+      sec %= 86400;
+      int hours = sec / 3600;
+      sec %= 3600;
+      int minutes = sec / 60;
+      char buffer[32];
+      snprintf(buffer, sizeof(buffer), "%dd %02dh %02dm", days, hours, minutes);
+      return {buffer};
+
+# Status RGB LED (WS2812). Off at boot; turns blue on Wi-Fi connect (network pkg).
+light:
+  - platform: esp32_rmt_led_strip
+    id: rgb
+    name: "RGB LED"
+    pin: ${pin_led}
+    num_leds: 1
+    chipset: ws2812
+    rgb_order: GRB
+    default_transition_length: 0s
+    restore_mode: ALWAYS_OFF

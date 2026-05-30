@@ -1,0 +1,16 @@
+# Secrets — never commit
+secrets.yaml
+
+# ESPHome build artifacts
+.esphome/
+build/
+*.bin
+
+# Python
+__pycache__/
+*.pyc
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,57 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Audio Sentinel — ESP32-S3 + INMP441 audio monitor for Home Assistant.
+#
+# This top-level file is intentionally thin: device identity + substitutions,
+# the local external component, and the package includes. All real config lives
+# in packages/ (see https://esphome.io/components/packages/). All DSP lives in
+# the audio_sentinel external component (see components/audio_sentinel/).
+# ─────────────────────────────────────────────────────────────────────────────
+
+substitutions:
+  name: audio-sentinel
+  friendly_name: "SG Baby Audio Sentinel S3"
+  device_description: "Audio Sentinel"
+
+  # I²S wiring (INMP441)
+  i2s_bclk: GPIO10
+  i2s_lrclk: GPIO11
+  i2s_din: GPIO04
+  pin_led: GPIO21
+
+  # Audio capture
+  sample_rate: "16000"
+  meas_duration_ms: "125"
+  live_interval_ms: "250"     # cadence of the "live" series + ring buffer
+
+  # DSP tuning (consumed by the audio_sentinel component)
+  hysteresis_db: "1.5"
+  initial_floor_db: "-60"     # adaptive noise-floor seed (nighttime ambient)
+  floor_drift_db: "0.001"     # dB per tick upward drift when signal is above gate
+
+  # Network
+  static_ip: 10.0.30.86
+
+esphome:
+  name: ${name}
+  comment: ${device_description}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: arduino
+
+logger:
+  level: INFO
+
+# Local external component (replaces the removed includes:/custom-component style)
+external_components:
+  - source:
+      type: local
+      path: components
+
+packages:
+  network: !include packages/network.yaml
+  mic: !include packages/mic.yaml
+  sentinel: !include packages/sentinel.yaml
+  diagnostics: !include packages/diagnostics.yaml

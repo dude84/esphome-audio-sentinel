@@ -1,0 +1,213 @@
+type: grid
+cards:
+  - type: custom:apexcharts-card
+    header:
+      show: false
+    graph_span: 5min
+    update_interval: 1s
+    all_series_config:
+      stroke_width: 1
+    yaxis:
+      - id: db
+        min: -65
+        max: -5
+        decimals: 0
+    apex_config:
+      chart:
+        height: 170
+        animations:
+          enabled: true
+          easing: linear
+          dynamicAnimation:
+            speed: 500
+      grid:
+        show: false
+      legend:
+        show: false
+      tooltip:
+        enabled: true
+        x:
+          format: HH:mm:ss
+    card_mod:
+      style: |
+        #spinner-wrapper {
+          display: none !important;
+        }
+    series:
+      - entity: sensor.audio_sentinel_peak_db_live
+        name: Peak dB
+        type: line
+        color: "#4FC3F7"
+        yaxis_id: db
+        float_precision: 1
+        extend_to: false
+        data_generator: >
+          // Peak Live data_generator — UPDATED: removed d.t[i] dependency
+
+          // Change: "const ts = now - d.t[i];" → "const ts = now - (d.count -
+          i) * d.ms;"
+
+
+          if (!window._peakLiveBuf) window._peakLiveBuf = [];
+
+          if (!window._abPrefill) {
+            window._abPrefill = { started: true, done: false };
+            const ha = document.querySelector('home-assistant');
+            const h = ha && ha.hass;
+            if (h) {
+              const doFetch = (attempt) => {
+                h.connection.sendMessagePromise({
+                  type: 'call_service',
+                  domain: 'rest_command',
+                  service: 'baby_sentinel_audio_buffer_fetch',
+                  service_data: { count: 1200 },
+                  return_response: true
+                }).then(r => {
+                  const d = r.response.content;
+                  const now = Date.now();
+                  const pBuf = [];
+                  const nBuf = [];
+                  for (let i = 0; i < d.count; i++) {
+                    if (d.p[i] !== 0 || d.n[i] !== 0) {
+                      const ts = now - (d.count - i) * d.ms;
+                      pBuf.push([ts, d.p[i]]);
+                      nBuf.push([ts, d.n[i]]);
+                    }
+                  }
+                  if (!window._peakLiveBuf.length) window._peakLiveBuf = pBuf;
+                  else window._peakLiveBuf = pBuf.concat(window._peakLiveBuf);
+                  if (!window._nfLiveBuf) window._nfLiveBuf = [];
+                  if (!window._nfLiveBuf.length) window._nfLiveBuf = nBuf;
+                  else window._nfLiveBuf = nBuf.concat(window._nfLiveBuf);
+                  window._abPrefill.done = true;
+                }).catch(() => {
+                  if (attempt < 3) setTimeout(() => doFetch(attempt + 1), 1000);
+                  else window._abPrefill.done = true;
+                });
+              };
+              doFetch(0);
+            }
+          } const now = Date.now(); const span = 5 * 60 * 1000; const val =
+          parseFloat(entity.state); if (!isNaN(val))
+          window._peakLiveBuf.push([now, val]); window._peakLiveBuf =
+          window._peakLiveBuf.filter(d => d[0] > now - span); return
+          window._peakLiveBuf;
+      - entity: sensor.audio_sentinel_noise_floor
+        name: Noise Floor
+        type: line
+        color: "#78909C"
+        yaxis_id: db
+        float_precision: 1
+        extend_to: false
+        stroke_width: 1
+        data_generator: |
+          if (!window._nfLiveBuf) window._nfLiveBuf = [];
+          const now = Date.now();
+          const span = 5 * 60 * 1000;
+          const val = parseFloat(entity.state);
+          if (!isNaN(val)) window._nfLiveBuf.push([now, val]);
+          window._nfLiveBuf = window._nfLiveBuf.filter(d => d[0] > now - span);
+          return window._nfLiveBuf;
+      - entity: sensor.audio_sentinel_squawk_threshold
+        name: Squawk
+        type: line
+        color: "#FFA726"
+        yaxis_id: db
+        float_precision: 0
+        extend_to: now
+        stroke_width: 1
+        data_generator: |
+          const now = Date.now();
+          const span = 5 * 60 * 1000;
+          const val = parseFloat(entity.state);
+          if (isNaN(val)) return [];
+          return [[now - span, val], [now, val]];
+      - entity: sensor.audio_sentinel_cry_threshold
+        name: Cry
+        type: line
+        color: "#EF5350"
+        yaxis_id: db
+        float_precision: 0
+        extend_to: now
+        stroke_width: 1
+        data_generator: |
+          const now = Date.now();
+          const span = 5 * 60 * 1000;
+          const val = parseFloat(entity.state);
+          if (isNaN(val)) return [];
+          return [[now - span, val], [now, val]];
+  - type: custom:apexcharts-card
+    header:
+      show: false
+    graph_span: 4h
+    yaxis:
+      - id: db
+        min: -65
+        max: -5
+        decimals: 0
+    apex_config:
+      chart:
+        height: 170
+        animations:
+          enabled: false
+      grid:
+        show: false
+      stroke:
+        width: 1
+      legend:
+        show: false
+      tooltip:
+        enabled: true
+        x:
+          format: HH:mm:ss
+    card_mod:
+      style: |
+        #spinner-wrapper {
+          display: none !important;
+        }
+    series:
+      - entity: sensor.audio_sentinel_peak_db_events
+        name: Peak dB (events)
+        type: area
+        color: "#4FC3F7"
+        yaxis_id: db
+        float_precision: 1
+        extend_to: false
+        opacity: 0
+        stroke_width: 1
+      - entity: sensor.audio_sentinel_noise_floor
+        name: Noise Floor
+        type: line
+        color: "#78909C"
+        yaxis_id: db
+        float_precision: 1
+        extend_to: now
+        stroke_width: 1
+      - entity: sensor.audio_sentinel_squawk_threshold
+        name: Squawk
+        type: line
+        color: "#FFA726"
+        yaxis_id: db
+        float_precision: 0
+        extend_to: now
+        stroke_width: 1
+        data_generator: |
+          const now = Date.now();
+          const span = 4 * 60 * 60 * 1000;
+          const val = parseFloat(entity.state);
+          if (isNaN(val)) return [];
+          return [[now - span, val], [now, val]];
+      - entity: sensor.audio_sentinel_cry_threshold
+        name: Cry
+        type: line
+        color: "#EF5350"
+        yaxis_id: db
+        float_precision: 0
+        extend_to: now
+        stroke_width: 1
+        data_generator: |
+          const now = Date.now();
+          const span = 4 * 60 * 60 * 1000;
+          const val = parseFloat(entity.state);
+          if (isNaN(val)) return [];
+          return [[now - span, val], [now, val]];
