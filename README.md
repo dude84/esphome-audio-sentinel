@@ -8,6 +8,13 @@ two configurable alarms (*squawk* and *cry*).
 It does **not** record or stream audio. It only computes sound-level (dB) features
 on-device and publishes numbers, so it is privacy-preserving by design.
 
+![Home Assistant dashboard: live short-window and 4-hour long-window sound charts with squawk/cry threshold lines, plus Cry and Squawk status cards](_docs/ha_graphs_and_binarysensors.png)
+
+*Home Assistant view — top: live 5-min short window; bottom: 4-hour long window.
+**Blue** = peak dB, **grey** = adaptive noise floor, **orange** = squawk threshold,
+**red** = cry threshold. The **Cry** / **Squawk** cards below are the binary-sensor
+alarms (shown `Clear`).*
+
 ---
 
 ## What it does
