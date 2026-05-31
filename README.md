@@ -56,6 +56,8 @@ The Home Assistant view (ApexCharts) shows a **short window** (live, 5 min) and 
 - INMP441 `L/R` tied high → right channel (matches `channel: right` in `mic.yaml`).
 - Onboard WS2812 status LED: off at boot, **blue** once Wi-Fi connects.
 
+![Wiring diagram — INMP441 I²S microphone to ESP32-S3 DevKitC-1: VDD and L/R to 3.3V, GND to GND, SCK to GPIO10, WS to GPIO11, SD to GPIO4](_docs/wiring_schema.png)
+
 ---
 
 ## Repository layout
