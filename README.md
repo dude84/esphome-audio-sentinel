@@ -200,7 +200,7 @@ values. That's the only reason the short-window chart is full immediately.
 Real capture from the device, quiet room (`count=8` for brevity):
 
 ```bash
-curl "http://10.0.30.86/api/audio_buffer?count=8"
+curl "http://<device-ip>/api/audio_buffer?count=8"
 ```
 ```json
 {"count":8,"ms":250,"p":[-65.0,-65.0,-65.0,-65.0,-65.0,-65.0,-65.0,-65.0],"n":[-64.8,-64.8,-64.8,-64.8,-64.8,-64.8,-64.8,-64.8]}

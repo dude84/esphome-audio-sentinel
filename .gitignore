@@ -14,3 +14,6 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+
+# Claude Code local settings (per-user, absolute paths)
+.claude/

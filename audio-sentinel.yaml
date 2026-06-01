@@ -28,8 +28,8 @@ substitutions:
   initial_floor_db: "-60"     # adaptive noise-floor seed (nighttime ambient)
   floor_drift_db: "0.001"     # dB per tick upward drift when signal is above gate
 
-  # Network
-  static_ip: 10.0.30.86
+  # Network — set to your device's reserved/static IP
+  static_ip: 192.0.2.50
 
 esphome:
   name: ${name}
