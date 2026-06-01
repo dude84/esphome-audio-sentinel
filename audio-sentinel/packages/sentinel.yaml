@@ -101,12 +101,17 @@ binary_sensor:
       name: "${name} Cry"
 
 # ── Manual audio toggle (HA switch) ─────────────────────────────
+# optimistic + RESTORE_DEFAULT_ON so the gate boots ON (matches the original
+# global audio_enabled: restore_value yes / initial_value true). A plain
+# lambda-state template switch defaulted RESTORE_DEFAULT_OFF and drove
+# set_audio_enabled(false) at boot, gating all output off.
 switch:
   - platform: template
     id: audio_switch
     name: "${name} Audio"
     icon: mdi:microphone
-    lambda: "return id(sentinel).is_audio_enabled();"
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
     turn_on_action:
       - lambda: "id(sentinel).set_audio_enabled(true);"
     turn_off_action:

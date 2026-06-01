@@ -62,12 +62,12 @@ external_components:
   - source:
       type: git
       url: https://github.com/dude84/esphome-audio-sentinel
-      ref: v1.1.1
+      ref: v1.1.2
       path: audio-sentinel/components
     components: [audio_sentinel]
 
 packages:
-  network:     github://dude84/esphome-audio-sentinel/audio-sentinel/packages/network.yaml@v1.1.1
-  mic:         github://dude84/esphome-audio-sentinel/audio-sentinel/packages/mic.yaml@v1.1.1
-  sentinel:    github://dude84/esphome-audio-sentinel/audio-sentinel/packages/sentinel.yaml@v1.1.1
-  diagnostics: github://dude84/esphome-audio-sentinel/audio-sentinel/packages/diagnostics.yaml@v1.1.1
+  network:     github://dude84/esphome-audio-sentinel/audio-sentinel/packages/network.yaml@v1.1.2
+  mic:         github://dude84/esphome-audio-sentinel/audio-sentinel/packages/mic.yaml@v1.1.2
+  sentinel:    github://dude84/esphome-audio-sentinel/audio-sentinel/packages/sentinel.yaml@v1.1.2
+  diagnostics: github://dude84/esphome-audio-sentinel/audio-sentinel/packages/diagnostics.yaml@v1.1.2
