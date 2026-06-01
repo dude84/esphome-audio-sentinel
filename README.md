@@ -113,7 +113,7 @@ repo over `github://` (pinned to a tag) and fills in its own secrets. Nothing un
 1. Add **`audio-sentinel.yaml`** to the dir (copy it from this repo / the
    [v1.1.1 release](https://github.com/dude84/esphome-audio-sentinel/releases)).
    It already points at `github://dude84/esphome-audio-sentinel@v1.1.1`.
-2. Create `secrets.yaml` next to it — `wifi_ssid`, `wifi_password`, `ap_password`,
+2. Create `secrets.yaml` next to it — `wifi_ssid`, `wifi_password`, `failsafe_ap_password`,
    `api_password`, `ota_password` (see `secrets.yaml.example`). The add-on uses
    `/config/esphome/secrets.yaml` for every device.
 3. Edit the `substitutions:` at the top of `audio-sentinel.yaml` — `static_ip`,

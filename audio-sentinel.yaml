@@ -38,7 +38,7 @@ substitutions:
   # Secrets injected into the remote network package (kept local; never in the repo)
   wifi_ssid: !secret wifi_ssid
   wifi_password: !secret wifi_password
-  ap_password: !secret ap_password
+  ap_password: !secret failsafe_ap_password   # shared fallback-AP password across devices
   api_key: !secret api_password
   ota_password: !secret ota_password
 
