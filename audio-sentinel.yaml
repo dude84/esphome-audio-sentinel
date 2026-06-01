@@ -31,6 +31,9 @@ substitutions:
   initial_floor_db: "-60"
   floor_drift_db: "0.001"
 
+  # Library version — bump this ONE value to take a new release
+  sentinel_version: v1.1.2
+
   # Network
   static_ip: 192.0.2.50
   ap_ssid: "Sg-Baby-Audio-Sentinel-S3"
@@ -55,19 +58,25 @@ esp32:
 logger:
   level: INFO
 
-# Reusable logic pulled from the public repo, pinned to a release tag.
+# Reusable logic pulled from the public repo, pinned via ${sentinel_version}.
 # git source (not github:// shorthand) so we can point path: at the components
 # folder, which lives under audio-sentinel/ rather than the repo root.
 external_components:
   - source:
       type: git
       url: https://github.com/dude84/esphome-audio-sentinel
-      ref: v1.1.2
+      ref: ${sentinel_version}
       path: audio-sentinel/components
     components: [audio_sentinel]
 
+# Expanded git package: one block, one ref, all package files.
 packages:
-  network:     github://dude84/esphome-audio-sentinel/audio-sentinel/packages/network.yaml@v1.1.2
-  mic:         github://dude84/esphome-audio-sentinel/audio-sentinel/packages/mic.yaml@v1.1.2
-  sentinel:    github://dude84/esphome-audio-sentinel/audio-sentinel/packages/sentinel.yaml@v1.1.2
-  diagnostics: github://dude84/esphome-audio-sentinel/audio-sentinel/packages/diagnostics.yaml@v1.1.2
+  audio_sentinel:
+    url: https://github.com/dude84/esphome-audio-sentinel
+    ref: ${sentinel_version}
+    refresh: 1d
+    files:
+      - audio-sentinel/packages/network.yaml
+      - audio-sentinel/packages/mic.yaml
+      - audio-sentinel/packages/sentinel.yaml
+      - audio-sentinel/packages/diagnostics.yaml
