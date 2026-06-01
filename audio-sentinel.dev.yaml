@@ -1,0 +1,58 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# LOCAL DEV entry — builds the packages + audio_sentinel component from THIS
+# working tree (no github:// fetch), so changes can be tested before tagging a
+# release. The production/consumer file is audio-sentinel.yaml (remote, pinned).
+#
+# Same substitutions as the consumer; the network package still reads them.
+# ─────────────────────────────────────────────────────────────────────────────
+
+substitutions:
+  name: audio-sentinel
+  friendly_name: "SG Baby Audio Sentinel S3"
+  device_description: "Audio Sentinel (dev)"
+
+  i2s_bclk: GPIO10
+  i2s_lrclk: GPIO11
+  i2s_din: GPIO04
+  pin_led: GPIO21
+
+  sample_rate: "16000"
+  meas_duration_ms: "125"
+  live_interval_ms: "250"
+
+  hysteresis_db: "1.5"
+  initial_floor_db: "-60"
+  floor_drift_db: "0.001"
+
+  static_ip: 192.0.2.50
+  ap_ssid: "Sg-Baby-Audio-Sentinel-S3"
+
+  wifi_ssid: !secret wifi_ssid
+  wifi_password: !secret wifi_password
+  ap_password: !secret ap_password
+  api_key: !secret api_password
+  ota_password: !secret ota_password
+
+esphome:
+  name: ${name}
+  comment: ${device_description}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: arduino
+
+logger:
+  level: INFO
+
+external_components:
+  - source:
+      type: local
+      path: audio-sentinel/components
+
+packages:
+  network: !include audio-sentinel/packages/network.yaml
+  mic: !include audio-sentinel/packages/mic.yaml
+  sentinel: !include audio-sentinel/packages/sentinel.yaml
+  diagnostics: !include audio-sentinel/packages/diagnostics.yaml

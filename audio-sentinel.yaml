@@ -1,10 +1,13 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Audio Sentinel — ESP32-S3 + INMP441 audio monitor for Home Assistant.
 #
-# This top-level file is intentionally thin: device identity + substitutions,
-# the local external component, and the package includes. All real config lives
-# in packages/ (see https://esphome.io/components/packages/). All DSP lives in
-# the audio_sentinel external component (see components/audio_sentinel/).
+# DEVICE / CONSUMER yaml. Pulls all reusable logic (packages + the audio_sentinel
+# external component) from the public repo via github://, pinned to a tag.
+# Secrets stay LOCAL here and are injected into the remote packages as
+# substitutions (remote git packages cannot use !secret).
+#
+# For local development of the packages/component themselves, build
+# audio-sentinel.dev.yaml instead (it includes them from this working tree).
 # ─────────────────────────────────────────────────────────────────────────────
 
 substitutions:
@@ -21,15 +24,23 @@ substitutions:
   # Audio capture
   sample_rate: "16000"
   meas_duration_ms: "125"
-  live_interval_ms: "250"     # cadence of the "live" series + ring buffer
+  live_interval_ms: "250"
 
-  # DSP tuning (consumed by the audio_sentinel component)
+  # DSP tuning
   hysteresis_db: "1.5"
-  initial_floor_db: "-60"     # adaptive noise-floor seed (nighttime ambient)
-  floor_drift_db: "0.001"     # dB per tick upward drift when signal is above gate
+  initial_floor_db: "-60"
+  floor_drift_db: "0.001"
 
-  # Network — set to your device's reserved/static IP
+  # Network
   static_ip: 192.0.2.50
+  ap_ssid: "Sg-Baby-Audio-Sentinel-S3"
+
+  # Secrets injected into the remote network package (kept local; never in the repo)
+  wifi_ssid: !secret wifi_ssid
+  wifi_password: !secret wifi_password
+  ap_password: !secret ap_password
+  api_key: !secret api_password
+  ota_password: !secret ota_password
 
 esphome:
   name: ${name}
@@ -44,16 +55,13 @@ esp32:
 logger:
   level: INFO
 
-# Local external component (replaces the removed includes:/custom-component style).
-# Paths are namespaced under audio-sentinel/ so this drops into a shared ESPHome
-# config dir (e.g. /config/esphome/) without clashing with other devices.
+# Reusable logic pulled from the public repo, pinned to a release tag.
 external_components:
-  - source:
-      type: local
-      path: audio-sentinel/components
+  - source: github://dude84/esphome-audio-sentinel@v1.1.0
+    components: [audio_sentinel]
 
 packages:
-  network: !include audio-sentinel/packages/network.yaml
-  mic: !include audio-sentinel/packages/mic.yaml
-  sentinel: !include audio-sentinel/packages/sentinel.yaml
-  diagnostics: !include audio-sentinel/packages/diagnostics.yaml
+  network:     github://dude84/esphome-audio-sentinel/audio-sentinel/packages/network.yaml@v1.1.0
+  mic:         github://dude84/esphome-audio-sentinel/audio-sentinel/packages/mic.yaml@v1.1.0
+  sentinel:    github://dude84/esphome-audio-sentinel/audio-sentinel/packages/sentinel.yaml@v1.1.0
+  diagnostics: github://dude84/esphome-audio-sentinel/audio-sentinel/packages/diagnostics.yaml@v1.1.0
