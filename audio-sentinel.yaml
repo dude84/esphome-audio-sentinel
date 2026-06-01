@@ -56,7 +56,7 @@ esp32:
     type: arduino
 
 logger:
-  level: DEBUG
+  level: INFO
 
 # Reusable logic pulled from the public repo, pinned via ${sentinel_version}.
 # git source (not github:// shorthand) so we can point path: at the components
