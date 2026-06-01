@@ -56,12 +56,18 @@ logger:
   level: INFO
 
 # Reusable logic pulled from the public repo, pinned to a release tag.
+# git source (not github:// shorthand) so we can point path: at the components
+# folder, which lives under audio-sentinel/ rather than the repo root.
 external_components:
-  - source: github://dude84/esphome-audio-sentinel@v1.1.0
+  - source:
+      type: git
+      url: https://github.com/dude84/esphome-audio-sentinel
+      ref: v1.1.1
+      path: audio-sentinel/components
     components: [audio_sentinel]
 
 packages:
-  network:     github://dude84/esphome-audio-sentinel/audio-sentinel/packages/network.yaml@v1.1.0
-  mic:         github://dude84/esphome-audio-sentinel/audio-sentinel/packages/mic.yaml@v1.1.0
-  sentinel:    github://dude84/esphome-audio-sentinel/audio-sentinel/packages/sentinel.yaml@v1.1.0
-  diagnostics: github://dude84/esphome-audio-sentinel/audio-sentinel/packages/diagnostics.yaml@v1.1.0
+  network:     github://dude84/esphome-audio-sentinel/audio-sentinel/packages/network.yaml@v1.1.1
+  mic:         github://dude84/esphome-audio-sentinel/audio-sentinel/packages/mic.yaml@v1.1.1
+  sentinel:    github://dude84/esphome-audio-sentinel/audio-sentinel/packages/sentinel.yaml@v1.1.1
+  diagnostics: github://dude84/esphome-audio-sentinel/audio-sentinel/packages/diagnostics.yaml@v1.1.1
