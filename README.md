@@ -63,10 +63,11 @@ The Home Assistant view (ApexCharts) shows a **short window** (live, 5 min) and 
 ## Repository layout
 
 ```
-audio-sentinel.yaml          # thin entrypoint: substitutions + external_components + packages
-audio-sentinel/              # everything the firmware includes — namespaced so it can
-  packages/                  #   drop into a shared ESPHome dir without clashing
-    network.yaml             # wifi, api, ota, captive_portal, web_server
+audio-sentinel.yaml          # DEVICE/CONSUMER config: pulls packages + component from github:// (pinned @tag)
+audio-sentinel.dev.yaml      # LOCAL-DEV variant: builds packages + component from this working tree
+audio-sentinel/              # reusable library, namespaced so it never clashes in a shared dir
+  packages/                  #   (consumed remotely by devices, or locally by the .dev entry)
+    network.yaml             # wifi, api, ota, captive_portal, web_server  (uses ${substitutions}, no !secret)
     mic.yaml                 # i2s_audio, microphone, sound_level (spl_db / spl_peak_db)
     sentinel.yaml            # audio_sentinel hub + its sensors/binary_sensors + thresholds + audio switch
     diagnostics.yaml         # heap (debug), uptime, status LED
@@ -79,15 +80,13 @@ ha/
 secrets.yaml.example         # template — copy to secrets.yaml (git-ignored)
 ```
 
-The `audio-sentinel/` subfolder is named after the device so the firmware drops
-straight into a multi-device ESPHome config dir (e.g. `/config/esphome/`) with no
-collisions — `audio-sentinel.yaml` stays at the top level (where the add-on
-dashboard lists it) and includes everything from its own namespaced subfolder.
-
 The firmware uses the ESPHome [packages](https://esphome.io/components/packages/)
-pattern (the top file just `!include`s the packages) and a local
-[external component](https://developers.esphome.io/blog/2025/02/19/about-the-removal-of-support-for-custom-components/)
+pattern + an [external component](https://developers.esphome.io/blog/2025/02/19/about-the-removal-of-support-for-custom-components/)
 (the sanctioned replacement for the now-removed `includes:`/custom-component style).
+Both are pulled **remotely** from this public repo over `github://`, pinned to a
+release tag — so a device is just a small local config that fills in secrets +
+wiring. Because remote git packages can't use `!secret`, `network.yaml` takes its
+credentials as `${substitutions}` that the device config supplies from `!secret`.
 
 ---
 
@@ -100,46 +99,43 @@ into Home Assistant by hand.
 
 ### A. Firmware (ESPHome)
 
-ESPHome resolves `packages:` and `external_components: source: local` **relative to
-`audio-sentinel.yaml`**, and the include paths are already namespaced under the
-`audio-sentinel/` subfolder — so you can drop this straight into a shared config dir
-(`/config/esphome/` for the **ESPHome add-on**, or any folder for the standalone CLI)
-**alongside your other devices** without anything clashing:
+A device is a **single local config** that pulls the packages + component from this
+repo over `github://` (pinned to a tag) and fills in its own secrets. Nothing under
+`audio-sentinel/` needs copying — ESPHome fetches and caches it at build time.
 
 ```
 /config/esphome/                 # shared ESPHome dir — other devices live here too
-├── audio-sentinel.yaml          # ← the file you compile/flash (stays top-level)
+├── audio-sentinel.yaml          # ← the one file you add (pulls everything remotely)
 ├── secrets.yaml                 # ← you create this; shared by all your devices
-├── kitchen-sensor.yaml          # (your other devices — untouched)
-└── audio-sentinel/              # this project's namespaced includes
-    ├── packages/   network.yaml mic.yaml sentinel.yaml diagnostics.yaml
-    └── components/audio_sentinel/   # __init__.py sensor.py binary_sensor.py *.h *.cpp
+└── kitchen-sensor.yaml          # (your other devices — untouched)
 ```
 
-Steps:
-
-1. Copy `audio-sentinel.yaml` **and** the `audio-sentinel/` folder into that dir
-   (keep the tree exactly — the top-level yaml plus its same-named subfolder). The
-   `ha/` folder and `*.example` are not needed here.
-2. Create `secrets.yaml` next to `audio-sentinel.yaml`
-   (`cp secrets.yaml.example secrets.yaml`, then fill in Wi-Fi / API / OTA).
-   The ESPHome add-on uses `/config/esphome/secrets.yaml` for every device.
-3. Edit `substitutions:` in `audio-sentinel.yaml` — pins and `static_ip`.
-4. Build + flash:
-   - **Add-on:** open the device in the ESPHome dashboard → **Install** (USB first
-     time, then wireless/OTA).
-   - **CLI:**
-     ```bash
-     esphome config  audio-sentinel.yaml   # validate config + package merge
-     esphome compile audio-sentinel.yaml   # compile (builds the external component)
-     esphome run     audio-sentinel.yaml   # flash (USB first time, OTA after)
-     ```
-5. After it boots, the device auto-discovers in HA (**Settings → Devices & Services
-   → ESPHome**); confirm it and the entities below appear. Sanity-check the buffer:
+1. Add **`audio-sentinel.yaml`** to the dir (copy it from this repo / the
+   [v1.1.1 release](https://github.com/dude84/esphome-audio-sentinel/releases)).
+   It already points at `github://dude84/esphome-audio-sentinel@v1.1.1`.
+2. Create `secrets.yaml` next to it — `wifi_ssid`, `wifi_password`, `ap_password`,
+   `api_password`, `ota_password` (see `secrets.yaml.example`). The add-on uses
+   `/config/esphome/secrets.yaml` for every device.
+3. Edit the `substitutions:` at the top of `audio-sentinel.yaml` — `static_ip`,
+   GPIO pins, `name`. Secrets are injected from there as `!secret …` substitutions.
+4. Build + flash (the **first** build fetches the packages + component from GitHub):
+   - **Add-on:** ESPHome dashboard → the device → **Install** (USB first, then OTA).
+   - **CLI:** `esphome run audio-sentinel.yaml`
+5. After boot it auto-discovers in HA (**Settings → Devices & Services → ESPHome**).
+   Sanity-check the buffer endpoint:
    ```bash
    curl "http://<device-ip>/api/audio_buffer?count=1200"
    # -> {"count":1200,"ms":250,"p":[...],"n":[...]}
    ```
+
+**Pinning & multiple devices.** Each device is pinned to a tag (`@v1.1.1`), so a push
+to `main` never changes a device until you bump its ref. For several devices, copy
+`audio-sentinel.yaml` per device (`nursery.yaml`, `bedroom.yaml`, …) and just change
+the `substitutions:` — they all share this one remote library.
+
+**Developing the packages/component.** To change the DSP or packages themselves,
+clone the repo and build **`audio-sentinel.dev.yaml`** (includes everything from the
+working tree — no fetch), then commit, tag a new release, and bump the device refs.
 
 ### B. Home Assistant (chart + REST command)
 
