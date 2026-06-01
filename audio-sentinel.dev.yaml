@@ -44,7 +44,7 @@ esp32:
     type: arduino
 
 logger:
-  level: INFO
+  level: DEBUG
 
 external_components:
   - source:
