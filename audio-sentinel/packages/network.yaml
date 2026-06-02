@@ -13,13 +13,7 @@ wifi:
   ap:
     ssid: ${ap_ssid}
     password: ${ap_password}
-  on_connect:
-    - light.turn_on:
-        id: rgb
-        brightness: 50%
-        red: 0%
-        green: 0%
-        blue: 100%
+  # (no on_connect LED automation — LED stays off; control it manually from HA)
 
 captive_portal:
 

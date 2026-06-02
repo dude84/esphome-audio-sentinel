@@ -44,7 +44,8 @@ text_sensor:
       snprintf(buffer, sizeof(buffer), "%dd %02dh %02dm", days, hours, minutes);
       return {buffer};
 
-# Status RGB LED (WS2812). Off at boot; turns blue on Wi-Fi connect (network pkg).
+# Onboard RGB LED (WS2812). Stays off (no status automation); the entity remains
+# in HA so you can turn it on manually. Off at every boot (restore_mode ALWAYS_OFF).
 light:
   - platform: esp32_rmt_led_strip
     id: rgb

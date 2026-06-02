@@ -87,7 +87,8 @@ Every knob above is tunable — see [Tuning](#tuning) and `CLAUDE.md`.
 
 - Board: `esp32-s3-devkitc-1` (Arduino framework).
 - INMP441 `L/R` tied high → right channel (matches `channel: right` in `mic.yaml`).
-- Onboard WS2812 status LED: off at boot, **blue** once Wi-Fi connects.
+- Onboard WS2812 RGB LED: **off** (no status automation); the entity stays in HA
+  for manual control, and it powers up off each boot.
 
 ![Wiring diagram — INMP441 I²S microphone to ESP32-S3 DevKitC-1: VDD and L/R to 3.3V, GND to GND, SCK to GPIO10, WS to GPIO11, SD to GPIO4](_docs/wiring_schema.png)
 
@@ -142,8 +143,8 @@ repo over `github://` (pinned to a tag) and fills in its own secrets. Nothing un
 ```
 
 1. Add **`audio-sentinel.yaml`** to the dir (copy it from this repo / the
-   [v1.1.5 release](https://github.com/dude84/esphome-audio-sentinel/releases)).
-   It already points at `github://dude84/esphome-audio-sentinel@v1.1.5`.
+   [v1.1.6 release](https://github.com/dude84/esphome-audio-sentinel/releases)).
+   It already points at `github://dude84/esphome-audio-sentinel@v1.1.6`.
 2. Create `secrets.yaml` next to it — `wifi_ssid`, `wifi_password`, `failsafe_ap_password`,
    `api_password`, `ota_password` (see `secrets.yaml.example`). The add-on uses
    `/config/esphome/secrets.yaml` for every device.
@@ -159,7 +160,7 @@ repo over `github://` (pinned to a tag) and fills in its own secrets. Nothing un
    # -> {"count":1200,"ms":250,"p":[...],"n":[...]}
    ```
 
-**Pinning & multiple devices.** Each device is pinned to a tag (`@v1.1.5`), so a push
+**Pinning & multiple devices.** Each device is pinned to a tag (`@v1.1.6`), so a push
 to `main` never changes a device until you bump its ref. For several devices, copy
 `audio-sentinel.yaml` per device (`nursery.yaml`, `bedroom.yaml`, …) and just change
 the `substitutions:` — they all share this one remote library.
