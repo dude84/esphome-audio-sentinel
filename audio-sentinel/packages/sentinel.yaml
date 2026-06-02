@@ -51,10 +51,12 @@ audio_sentinel:
   floor_drift_db: ${floor_drift_db}
   hysteresis_db: ${hysteresis_db}
   margin_db: 2.0
-  attack_coeff: 0.4      # live-trace smoothing: fast attack EMA (1.0 = legacy instant)
-  hold: 20s
-  glide: 0.10
+  attack_coeff: 0.4         # live-trace smoothing: fast attack EMA (1.0 = legacy instant)
+  # events (long window) peak-hold — variant C: track peaks, short hold, fast decay
+  hold: 4s
+  glide: 0.30
   attack_db: 0.5
+  events_input_coeff: 0.75  # less input smoothing -> peak-hold reaches the real peak
 
 # ── Sensors published by the hub ────────────────────────────────
 sensor:

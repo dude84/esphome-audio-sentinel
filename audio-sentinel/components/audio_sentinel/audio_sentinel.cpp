@@ -207,8 +207,8 @@ void AudioSentinel::events_tick_() {
     this->ev_u_ = v;
   if (std::isnan(this->ev_bl_))
     this->ev_bl_ = v;
-  this->ev_u_ += 0.40f * (v - this->ev_u_);    // light attack smoothing (kills 1-sample blips)
-  this->ev_bl_ += 0.03f * (v - this->ev_bl_);  // ~1 min baseline the release glides toward
+  this->ev_u_ += this->events_input_coeff_ * (v - this->ev_u_);  // input pre-smoothing (peak fidelity)
+  this->ev_bl_ += 0.03f * (v - this->ev_bl_);                   // ~1 min baseline the release glides toward
 
   // Peak-hold envelope: instant attack, hold, glide to baseline.
   const uint32_t now = millis();
@@ -244,8 +244,9 @@ void AudioSentinel::dump_config() {
   ESP_LOGCONFIG(TAG, "  initial floor: %.1f dB, drift: %.4f dB/tick, margin: %.1f dB", this->initial_floor_db_,
                 this->floor_drift_db_, this->margin_db_);
   ESP_LOGCONFIG(TAG, "  attack coeff: %.2f, release coeff: %.2f", this->attack_coeff_, this->release_coeff_);
-  ESP_LOGCONFIG(TAG, "  hysteresis: %.1f dB, hold: %u ms, glide: %.2f, attack: %.1f dB", this->hysteresis_db_,
-                (unsigned) this->hold_ms_, this->glide_, this->attack_db_);
+  ESP_LOGCONFIG(TAG, "  hysteresis: %.1f dB, hold: %u ms, glide: %.2f, attack: %.1f dB, ev input: %.2f",
+                this->hysteresis_db_, (unsigned) this->hold_ms_, this->glide_, this->attack_db_,
+                this->events_input_coeff_);
   ESP_LOGCONFIG(TAG, "  ring buffer: %d samples, /api/audio_buffer %s", RING_SIZE,
                 this->web_server_base_ != nullptr ? "enabled" : "disabled");
 }

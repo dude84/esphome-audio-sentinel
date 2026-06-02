@@ -70,6 +70,7 @@ class AudioSentinel : public Component {
   void set_hold_ms(uint32_t v) { this->hold_ms_ = v; }
   void set_glide(float v) { this->glide_ = v; }
   void set_attack_db(float v) { this->attack_db_ = v; }
+  void set_events_input_coeff(float v) { this->events_input_coeff_ = v; }
 
   // --- runtime audio gate (HA switch / OTA) ---
   void set_audio_enabled(bool en) { this->audio_enabled_ = en; }
@@ -123,6 +124,7 @@ class AudioSentinel : public Component {
   uint32_t hold_ms_{20000};
   float glide_{0.10f};
   float attack_db_{0.5f};
+  float events_input_coeff_{0.40f};  // events input pre-smoothing EMA (peak fidelity)
 
   // ring buffer
   Sample ring_[RING_SIZE];

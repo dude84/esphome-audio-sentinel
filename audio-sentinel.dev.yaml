@@ -24,6 +24,8 @@ substitutions:
   initial_floor_db: "-60"
   floor_drift_db: "0.001"
 
+  sentinel_version: dev          # local build marker (remote consumers pin a real tag)
+
   static_ip: 192.0.2.50
   ap_ssid: "Sg-Baby-Audio-Sentinel-S3"
 

@@ -21,6 +21,15 @@ sensor:
     update_interval: 60s
 
 text_sensor:
+  # Firmware version — the release tag the device was built from (${sentinel_version}).
+  - platform: template
+    name: "Sentinel Version"
+    icon: mdi:tag
+    entity_category: diagnostic
+    update_interval: 6h
+    lambda: |-
+      return {"${sentinel_version}"};
+
   - platform: template
     name: "Time Since Last Boot"
     update_interval: 60s
@@ -46,3 +55,4 @@ light:
     rgb_order: GRB
     default_transition_length: 0s
     restore_mode: ALWAYS_OFF
+    disabled_by_default: true   # hidden in HA by default; status use still works at boot

@@ -58,10 +58,12 @@ a sustained *cry* (~55 s):
    the published value is *snapped to the floor* (quantised to 0.5 dB), so quiet
    periods read as a dead-flat line and real events pop out. Above the margin the
    true peak passes through at 0.1 dB precision.
-4. **Peak-hold** (orange, *events*) — a separate slow envelope: instant attack, then
-   **hold** the peak for 20 s, then **glide** down toward a ~1-min baseline. This
-   keeps a short cry visible across the 4-hour overview instead of vanishing between
-   2 s samples.
+4. **Peak-hold** (orange, *events*) — a separate envelope tuned to **track the real
+   peak**: light input smoothing (`events_input_coeff` = 0.75) so it reaches the true
+   level, instant attack, a short **hold** (4 s), then a brisk **glide** down toward a
+   ~1-min baseline (`glide` = 0.30). Each event shows as a quick peak that decays
+   cleanly rather than a long flat plateau — so a short cry stays visible across the
+   4-hour overview without smearing into a hump.
 
 The **squawk/cry binary sensors** compare the *raw* peak against their thresholds
 with `hysteresis_db` (1.5 dB): they trip at the threshold but only clear 1.5 dB
@@ -138,8 +140,8 @@ repo over `github://` (pinned to a tag) and fills in its own secrets. Nothing un
 ```
 
 1. Add **`audio-sentinel.yaml`** to the dir (copy it from this repo / the
-   [v1.1.3 release](https://github.com/dude84/esphome-audio-sentinel/releases)).
-   It already points at `github://dude84/esphome-audio-sentinel@v1.1.3`.
+   [v1.1.4 release](https://github.com/dude84/esphome-audio-sentinel/releases)).
+   It already points at `github://dude84/esphome-audio-sentinel@v1.1.4`.
 2. Create `secrets.yaml` next to it — `wifi_ssid`, `wifi_password`, `failsafe_ap_password`,
    `api_password`, `ota_password` (see `secrets.yaml.example`). The add-on uses
    `/config/esphome/secrets.yaml` for every device.
@@ -155,7 +157,7 @@ repo over `github://` (pinned to a tag) and fills in its own secrets. Nothing un
    # -> {"count":1200,"ms":250,"p":[...],"n":[...]}
    ```
 
-**Pinning & multiple devices.** Each device is pinned to a tag (`@v1.1.3`), so a push
+**Pinning & multiple devices.** Each device is pinned to a tag (`@v1.1.4`), so a push
 to `main` never changes a device until you bump its ref. For several devices, copy
 `audio-sentinel.yaml` per device (`nursery.yaml`, `bedroom.yaml`, …) and just change
 the `substitutions:` — they all share this one remote library.

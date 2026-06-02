@@ -41,7 +41,8 @@ Data flow: `INMP441 → i2s_audio → sound_level (spl_db, spl_peak_db) → audi
 `initial_floor_db`, `floor_drift_db`, `floor_alpha`, `margin_db` (noise floor) ·
 `attack_coeff`/`release_coeff` (live envelope — `attack_coeff` 1.0 = legacy instant
 attack, <1.0 smooths the live trace; alarms use raw peak so latency is unaffected) ·
-`hold`/`glide`/`attack_db` (events peak-hold) ·
+`hold`/`glide`/`attack_db`/`events_input_coeff` (events peak-hold — variant C ships
+`hold 4s`, `glide 0.30`, `events_input_coeff 0.75` to track peaks and decay fast) ·
 `hysteresis_db` (squawk/cry) · `live_interval`/`events_interval` (cadence).
 
 ## Contracts — don't break these

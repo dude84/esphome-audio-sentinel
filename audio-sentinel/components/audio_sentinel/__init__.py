@@ -31,6 +31,7 @@ CONF_ATTACK_COEFF = "attack_coeff"
 CONF_HOLD = "hold"
 CONF_GLIDE = "glide"
 CONF_ATTACK_DB = "attack_db"
+CONF_EVENTS_INPUT_COEFF = "events_input_coeff"
 
 CONFIG_SCHEMA = cv.Schema(
     {
@@ -55,6 +56,7 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_HOLD, default="20s"): cv.positive_time_period_milliseconds,
         cv.Optional(CONF_GLIDE, default=0.10): cv.float_,
         cv.Optional(CONF_ATTACK_DB, default=0.5): cv.float_,
+        cv.Optional(CONF_EVENTS_INPUT_COEFF, default=0.40): cv.float_,
     }
 ).extend(cv.COMPONENT_SCHEMA)
 
@@ -92,3 +94,4 @@ async def to_code(config):
     cg.add(var.set_hold_ms(config[CONF_HOLD].total_milliseconds))
     cg.add(var.set_glide(config[CONF_GLIDE]))
     cg.add(var.set_attack_db(config[CONF_ATTACK_DB]))
+    cg.add(var.set_events_input_coeff(config[CONF_EVENTS_INPUT_COEFF]))
