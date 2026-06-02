@@ -8,16 +8,17 @@
   <circle cx="340" cy="212" r="30" fill="#173d29"/>
   <circle cx="340" cy="212" r="14" fill="#0c2418"/>
 
-  <!-- mic pin pads (straddle bottom edge y=310) + labels -->
-  <!-- Pins ordered left->right to match ESP pads top->bottom, so every wire is a
-       simple down-then-right run with NO crossings:
-       SD 165 / WS 235 / SCK 305 / GND 375 / VDD 445 / L/R 515 -->
+  <!-- mic pin pads (straddle bottom edge y=310) + labels.
+       Pins ordered left->right to match the ESP pads top->bottom, so each wire is
+       one simple down-then-right run, nested, with NO crossings:
+       SD 165 / WS 235 / SCK 305 / GND 375 / VDD 445 / L/R 515.
+       VDD + L/R share the 3.3V net, so both are drawn the SAME red. -->
   <rect x="154" y="300" width="22" height="22" rx="4" fill="#3fa757"/>
   <rect x="224" y="300" width="22" height="22" rx="4" fill="#4a90d9"/>
   <rect x="294" y="300" width="22" height="22" rx="4" fill="#f4b73f"/>
   <rect x="364" y="300" width="22" height="22" rx="4" fill="#222222"/>
   <rect x="434" y="300" width="22" height="22" rx="4" fill="#e8505b"/>
-  <rect x="504" y="300" width="22" height="22" rx="4" fill="#ef8b3f"/>
+  <rect x="504" y="300" width="22" height="22" rx="4" fill="#e8505b"/>
   <text x="165" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">SD</text>
   <text x="235" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">WS</text>
   <text x="305" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">SCK</text>
@@ -25,7 +26,7 @@
   <text x="445" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">VDD</text>
   <text x="515" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">L/R</text>
 
-  <!-- ============ wires — down then right, each its own lane, no overlaps ====== -->
+  <!-- ============ wires — each a single down-then-right run, no crossings ====== -->
   <g fill="none" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
     <!-- SD  -> GPIO4 DIN -->
     <polyline points="165,322 165,758 540,758" stroke="#3fa757"/>
@@ -35,13 +36,13 @@
     <polyline points="305,322 305,674 540,674" stroke="#f4b73f"/>
     <!-- GND -> GND -->
     <polyline points="375,322 375,632 540,632" stroke="#222222"/>
-    <!-- VDD -> 3.3V -->
+    <!-- VDD -> 3.3V (carries the whole 3.3V net) -->
     <polyline points="445,322 445,590 540,590" stroke="#e8505b"/>
-    <!-- L/R -> 3.3V (selects right channel) -->
-    <polyline points="515,322 515,590 540,590" stroke="#ef8b3f"/>
+    <!-- L/R taps onto VDD near the mic (same net, same colour) -->
+    <polyline points="515,322 515,372 445,372" stroke="#e8505b"/>
   </g>
-  <!-- junction dot: VDD + L/R share 3.3V -->
-  <circle cx="515" cy="590" r="5" fill="#222222"/>
+  <!-- junction dot: L/R joins the VDD/3.3V net -->
+  <circle cx="445" cy="372" r="5" fill="#222222"/>
 
   <!-- ============ ESP32-S3 ============ -->
   <rect x="560" y="520" width="420" height="300" rx="16" fill="#2b2d42"/>

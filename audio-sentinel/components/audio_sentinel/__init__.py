@@ -27,6 +27,7 @@ CONF_MARGIN_DB = "margin_db"
 CONF_HYSTERESIS_DB = "hysteresis_db"
 CONF_FLOOR_ALPHA = "floor_alpha"
 CONF_RELEASE_COEFF = "release_coeff"
+CONF_ATTACK_COEFF = "attack_coeff"
 CONF_HOLD = "hold"
 CONF_GLIDE = "glide"
 CONF_ATTACK_DB = "attack_db"
@@ -50,6 +51,7 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_HYSTERESIS_DB, default=1.5): cv.float_,
         cv.Optional(CONF_FLOOR_ALPHA, default=0.005): cv.float_,
         cv.Optional(CONF_RELEASE_COEFF, default=0.15): cv.float_,
+        cv.Optional(CONF_ATTACK_COEFF, default=1.0): cv.float_,
         cv.Optional(CONF_HOLD, default="20s"): cv.positive_time_period_milliseconds,
         cv.Optional(CONF_GLIDE, default=0.10): cv.float_,
         cv.Optional(CONF_ATTACK_DB, default=0.5): cv.float_,
@@ -86,6 +88,7 @@ async def to_code(config):
     cg.add(var.set_hysteresis_db(config[CONF_HYSTERESIS_DB]))
     cg.add(var.set_floor_alpha(config[CONF_FLOOR_ALPHA]))
     cg.add(var.set_release_coeff(config[CONF_RELEASE_COEFF]))
+    cg.add(var.set_attack_coeff(config[CONF_ATTACK_COEFF]))
     cg.add(var.set_hold_ms(config[CONF_HOLD].total_milliseconds))
     cg.add(var.set_glide(config[CONF_GLIDE]))
     cg.add(var.set_attack_db(config[CONF_ATTACK_DB]))

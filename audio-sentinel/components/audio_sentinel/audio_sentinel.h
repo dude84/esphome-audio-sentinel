@@ -66,6 +66,7 @@ class AudioSentinel : public Component {
   void set_hysteresis_db(float v) { this->hysteresis_db_ = v; }
   void set_floor_alpha(float v) { this->floor_alpha_ = v; }
   void set_release_coeff(float v) { this->release_coeff_ = v; }
+  void set_attack_coeff(float v) { this->attack_coeff_ = v; }
   void set_hold_ms(uint32_t v) { this->hold_ms_ = v; }
   void set_glide(float v) { this->glide_ = v; }
   void set_attack_db(float v) { this->attack_db_ = v; }
@@ -118,6 +119,7 @@ class AudioSentinel : public Component {
   float hysteresis_db_{1.5f};
   float floor_alpha_{0.005f};
   float release_coeff_{0.15f};
+  float attack_coeff_{1.0f};  // live envelope attack EMA; 1.0 = instant (legacy)
   uint32_t hold_ms_{20000};
   float glide_{0.10f};
   float attack_db_{0.5f};

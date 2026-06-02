@@ -39,7 +39,9 @@ Data flow: `INMP441 → i2s_audio → sound_level (spl_db, spl_peak_db) → audi
 
 ### Tuning knobs (`audio_sentinel:` in `audio-sentinel/packages/sentinel.yaml`)
 `initial_floor_db`, `floor_drift_db`, `floor_alpha`, `margin_db` (noise floor) ·
-`release_coeff` (live envelope) · `hold`/`glide`/`attack_db` (events peak-hold) ·
+`attack_coeff`/`release_coeff` (live envelope — `attack_coeff` 1.0 = legacy instant
+attack, <1.0 smooths the live trace; alarms use raw peak so latency is unaffected) ·
+`hold`/`glide`/`attack_db` (events peak-hold) ·
 `hysteresis_db` (squawk/cry) · `live_interval`/`events_interval` (cadence).
 
 ## Contracts — don't break these

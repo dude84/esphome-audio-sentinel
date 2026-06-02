@@ -154,11 +154,14 @@ void AudioSentinel::live_tick_() {
   if (this->cry_binary_sensor_ != nullptr && this->cry_number_ != nullptr)
     this->cry_binary_sensor_->publish_state(this->hysteresis_(v, this->cry_number_->state, this->cry_on_));
 
-  // Smooth envelope: instant attack, moderate release.
+  // Smooth envelope: fast attack, moderate release. attack_coeff_ == 1.0 is the
+  // legacy instant attack; < 1.0 eases the rise so single-sample blips don't
+  // spike the live trace, while a sustained cry still ramps to full in ~1 s.
+  // (Alarms trigger on raw v above, so this never adds alarm latency.)
   if (std::isnan(this->env_))
     this->env_ = v;
   if (v > this->env_) {
-    this->env_ = v;  // instant attack — cry shows immediately
+    this->env_ += this->attack_coeff_ * (v - this->env_);
   } else {
     this->env_ += this->release_coeff_ * (v - this->env_);
   }
@@ -240,6 +243,7 @@ void AudioSentinel::dump_config() {
                 (unsigned) this->events_interval_);
   ESP_LOGCONFIG(TAG, "  initial floor: %.1f dB, drift: %.4f dB/tick, margin: %.1f dB", this->initial_floor_db_,
                 this->floor_drift_db_, this->margin_db_);
+  ESP_LOGCONFIG(TAG, "  attack coeff: %.2f, release coeff: %.2f", this->attack_coeff_, this->release_coeff_);
   ESP_LOGCONFIG(TAG, "  hysteresis: %.1f dB, hold: %u ms, glide: %.2f, attack: %.1f dB", this->hysteresis_db_,
                 (unsigned) this->hold_ms_, this->glide_, this->attack_db_);
   ESP_LOGCONFIG(TAG, "  ring buffer: %d samples, /api/audio_buffer %s", RING_SIZE,
