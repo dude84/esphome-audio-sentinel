@@ -45,12 +45,12 @@ live window is only ~2 % of the long view:
 
 ![Audio Sentinel DSP pipeline — top: 5-min live window with raw peak, smoothed envelope, adaptive noise floor and gated output plus squawk/cry thresholds; bottom: 4-hour events window of the peak-hold envelope, with the 5-min live window marked as a ~2% sliver](_docs/filtering.png)
 
-1. **Smoothed envelope** — *fast attack, slow release* (`attack_coeff` = 0.4,
-   `release_coeff` = 0.15). A sustained rise ramps to full level in ~1 s — still
-   responsive — while single-sample blips are eased instead of spiking the trace,
-   and the fall is gentle so it doesn't flicker. (Set `attack_coeff: 1.0` for the
-   legacy instant attack.) The **squawk/cry alarms read the *raw* peak, not this
-   envelope**, so smoothing the trace never adds alarm latency.
+1. **Envelope** — *instant attack, slow release* (`attack_coeff` = 1.0,
+   `release_coeff` = 0.15). A rise is taken immediately so the live trace is crisp
+   and responsive; only the fall is eased so it doesn't flicker. Set
+   `attack_coeff` < 1.0 to additionally smooth the rise (trades responsiveness for
+   fewer single-sample blips). The **squawk/cry alarms read the *raw* peak, not this
+   envelope**, either way.
 2. **Adaptive noise floor** (grey) — a gated EMA. While the envelope sits within
    `margin_db` (2 dB) of the floor, the floor tracks ambient (`floor_alpha` slow);
    once an event lifts the signal clear, floor tracking is suspended and only a tiny
@@ -143,8 +143,8 @@ repo over `github://` (pinned to a tag) and fills in its own secrets. Nothing un
 ```
 
 1. Add **`audio-sentinel.yaml`** to the dir (copy it from this repo / the
-   [v1.1.7 release](https://github.com/dude84/esphome-audio-sentinel/releases)).
-   It already points at `github://dude84/esphome-audio-sentinel@v1.1.7`.
+   [v1.1.8 release](https://github.com/dude84/esphome-audio-sentinel/releases)).
+   It already points at `github://dude84/esphome-audio-sentinel@v1.1.8`.
 2. Create `secrets.yaml` next to it — `wifi_ssid`, `wifi_password`, `failsafe_ap_password`,
    `api_password`, `ota_password` (see `secrets.yaml.example`). The add-on uses
    `/config/esphome/secrets.yaml` for every device.
@@ -160,7 +160,7 @@ repo over `github://` (pinned to a tag) and fills in its own secrets. Nothing un
    # -> {"count":1200,"ms":250,"p":[...],"n":[...]}
    ```
 
-**Pinning & multiple devices.** Each device is pinned to a tag (`@v1.1.7`), so a push
+**Pinning & multiple devices.** Each device is pinned to a tag (`@v1.1.8`), so a push
 to `main` never changes a device until you bump its ref. For several devices, copy
 `audio-sentinel.yaml` per device (`nursery.yaml`, `bedroom.yaml`, …) and just change
 the `substitutions:` — they all share this one remote library.

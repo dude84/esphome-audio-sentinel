@@ -51,7 +51,7 @@ audio_sentinel:
   floor_drift_db: ${floor_drift_db}
   hysteresis_db: ${hysteresis_db}
   margin_db: 2.0
-  attack_coeff: 0.4         # live-trace smoothing: fast attack EMA (1.0 = legacy instant)
+  attack_coeff: 1.0         # live = instant attack (responsive, like <=v1.1.2); <1.0 smooths
   # events (long window) peak-hold — variant C: track peaks, short hold, fast decay
   hold: 4s
   glide: 0.30
