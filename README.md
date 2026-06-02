@@ -143,8 +143,8 @@ repo over `github://` (pinned to a tag) and fills in its own secrets. Nothing un
 ```
 
 1. Add **`audio-sentinel.yaml`** to the dir (copy it from this repo / the
-   [v1.1.6 release](https://github.com/dude84/esphome-audio-sentinel/releases)).
-   It already points at `github://dude84/esphome-audio-sentinel@v1.1.6`.
+   [v1.1.7 release](https://github.com/dude84/esphome-audio-sentinel/releases)).
+   It already points at `github://dude84/esphome-audio-sentinel@v1.1.7`.
 2. Create `secrets.yaml` next to it — `wifi_ssid`, `wifi_password`, `failsafe_ap_password`,
    `api_password`, `ota_password` (see `secrets.yaml.example`). The add-on uses
    `/config/esphome/secrets.yaml` for every device.
@@ -160,7 +160,7 @@ repo over `github://` (pinned to a tag) and fills in its own secrets. Nothing un
    # -> {"count":1200,"ms":250,"p":[...],"n":[...]}
    ```
 
-**Pinning & multiple devices.** Each device is pinned to a tag (`@v1.1.6`), so a push
+**Pinning & multiple devices.** Each device is pinned to a tag (`@v1.1.7`), so a push
 to `main` never changes a device until you bump its ref. For several devices, copy
 `audio-sentinel.yaml` per device (`nursery.yaml`, `bedroom.yaml`, …) and just change
 the `substitutions:` — they all share this one remote library.

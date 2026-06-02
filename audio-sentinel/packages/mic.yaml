@@ -22,11 +22,16 @@ sensor:
     microphone: mic
     passive: false
     measurement_duration: ${meas_duration_ms}ms
+    # Raw RMS/peak feed the audio_sentinel component (read via .state). Marked
+    # internal so they don't flood HA/API/recorder every 125 ms — the refined
+    # db_live / peak_live / est_db sensors are the HA-facing ones.
     rms:
       id: spl_db
       name: "${name} dB"
       accuracy_decimals: 1
+      internal: true
     peak:
       id: spl_peak_db
       name: "${name} Peak dB"
       accuracy_decimals: 1
+      internal: true

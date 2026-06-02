@@ -3,6 +3,12 @@
 # plain template lambda — that is a normal automation lambda (still supported),
 # not the removed includes:/custom-component style.
 
+# Silence the per-publish sensor state log (tag "sensor"), which floods at the
+# 125 ms sound_level rate, while keeping component/system logs at the device level.
+logger:
+  logs:
+    sensor: WARN
+
 debug:
   update_interval: 10s
 
