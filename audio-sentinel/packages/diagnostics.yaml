@@ -54,5 +54,4 @@ light:
     chipset: ws2812
     rgb_order: GRB
     default_transition_length: 0s
-    restore_mode: ALWAYS_OFF
-    disabled_by_default: true   # hidden in HA by default; status use still works at boot
+    restore_mode: ALWAYS_OFF   # entity stays in HA controls; just off at every boot

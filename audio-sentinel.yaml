@@ -32,7 +32,7 @@ substitutions:
   floor_drift_db: "0.001"
 
   # Library version — bump this ONE value to take a new release
-  sentinel_version: v1.1.4
+  sentinel_version: v1.1.5
 
   # Network
   static_ip: 192.0.2.50
