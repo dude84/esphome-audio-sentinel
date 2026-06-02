@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="920" viewBox="0 0 1100 920" font-family="Helvetica, Arial, sans-serif">
-  <rect x="0" y="0" width="1100" height="920" fill="#f4f4f4"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1100" viewBox="0 0 1100 1100" font-family="Helvetica, Arial, sans-serif">
+  <rect x="0" y="0" width="1100" height="1100" fill="#f4f4f4"/>
 
   <!-- ============ INMP441 mic ============ -->
   <rect x="120" y="70" width="440" height="240" rx="16" fill="#2e6f4e"/>
@@ -9,37 +9,39 @@
   <circle cx="340" cy="212" r="14" fill="#0c2418"/>
 
   <!-- mic pin pads (straddle bottom edge y=310) + labels -->
-  <!-- VDD 165 / GND 235 / SD 305 / SCK 375 / WS 445 / L/R 515 -->
-  <rect x="154" y="300" width="22" height="22" rx="4" fill="#e8505b"/>
-  <rect x="224" y="300" width="22" height="22" rx="4" fill="#222222"/>
-  <rect x="294" y="300" width="22" height="22" rx="4" fill="#3fa757"/>
-  <rect x="364" y="300" width="22" height="22" rx="4" fill="#f4b73f"/>
-  <rect x="434" y="300" width="22" height="22" rx="4" fill="#4a90d9"/>
+  <!-- Pins ordered left->right to match ESP pads top->bottom, so every wire is a
+       simple down-then-right run with NO crossings:
+       SD 165 / WS 235 / SCK 305 / GND 375 / VDD 445 / L/R 515 -->
+  <rect x="154" y="300" width="22" height="22" rx="4" fill="#3fa757"/>
+  <rect x="224" y="300" width="22" height="22" rx="4" fill="#4a90d9"/>
+  <rect x="294" y="300" width="22" height="22" rx="4" fill="#f4b73f"/>
+  <rect x="364" y="300" width="22" height="22" rx="4" fill="#222222"/>
+  <rect x="434" y="300" width="22" height="22" rx="4" fill="#e8505b"/>
   <rect x="504" y="300" width="22" height="22" rx="4" fill="#ef8b3f"/>
-  <text x="165" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">VDD</text>
-  <text x="235" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">GND</text>
-  <text x="305" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">SD</text>
-  <text x="375" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">SCK</text>
-  <text x="445" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">WS</text>
+  <text x="165" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">SD</text>
+  <text x="235" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">WS</text>
+  <text x="305" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">SCK</text>
+  <text x="375" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">GND</text>
+  <text x="445" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">VDD</text>
   <text x="515" y="342" text-anchor="middle" fill="#333333" font-size="17" font-weight="bold">L/R</text>
 
-  <!-- ============ wires ============ -->
+  <!-- ============ wires — down then right, each its own lane, no overlaps ====== -->
   <g fill="none" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-    <!-- VDD -> 3.3V -->
-    <polyline points="165,322 165,360 470,360 470,590 540,590" stroke="#e8505b"/>
-    <!-- L/R -> 3.3V (selects right channel) -->
-    <polyline points="515,322 515,345 455,345 455,590 540,590" stroke="#ef8b3f"/>
-    <!-- GND -> GND -->
-    <polyline points="235,322 235,380 485,380 485,632 540,632" stroke="#222222"/>
+    <!-- SD  -> GPIO4 DIN -->
+    <polyline points="165,322 165,758 540,758" stroke="#3fa757"/>
+    <!-- WS  -> GPIO11 LRCLK -->
+    <polyline points="235,322 235,716 540,716" stroke="#4a90d9"/>
     <!-- SCK -> GPIO10 BCLK -->
-    <polyline points="375,322 375,400 500,400 500,674 540,674" stroke="#f4b73f"/>
-    <!-- WS -> GPIO11 LRCLK -->
-    <polyline points="445,322 445,420 515,420 515,716 540,716" stroke="#4a90d9"/>
-    <!-- SD -> GPIO4 DIN -->
-    <polyline points="305,322 305,440 530,440 530,758 540,758" stroke="#3fa757"/>
+    <polyline points="305,322 305,674 540,674" stroke="#f4b73f"/>
+    <!-- GND -> GND -->
+    <polyline points="375,322 375,632 540,632" stroke="#222222"/>
+    <!-- VDD -> 3.3V -->
+    <polyline points="445,322 445,590 540,590" stroke="#e8505b"/>
+    <!-- L/R -> 3.3V (selects right channel) -->
+    <polyline points="515,322 515,590 540,590" stroke="#ef8b3f"/>
   </g>
-  <!-- junction dot: L/R + VDD share 3.3V -->
-  <circle cx="540" cy="590" r="5" fill="#222222"/>
+  <!-- junction dot: VDD + L/R share 3.3V -->
+  <circle cx="515" cy="590" r="5" fill="#222222"/>
 
   <!-- ============ ESP32-S3 ============ -->
   <rect x="560" y="520" width="420" height="300" rx="16" fill="#2b2d42"/>
